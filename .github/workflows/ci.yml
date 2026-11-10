@@ -9,7 +9,7 @@ jobs:
   verify:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: swift --version
       - run: swift format lint --strict --recursive Package.swift Sources Tests
       - run: swift test
