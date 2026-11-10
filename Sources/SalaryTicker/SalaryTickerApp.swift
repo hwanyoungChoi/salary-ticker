@@ -15,6 +15,7 @@ struct SalaryTickerApp: App {
   var body: some Scene {
     MenuBarExtra {
       PanelView(model: model)
+        .fitsWindowHeight()
     } label: {
       MenuBarLabel(model: model)
     }
