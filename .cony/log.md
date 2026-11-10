@@ -13,3 +13,6 @@
 - 2026-11-10 AI: fe 구현(1초 틱을 시계 초 경계에 맞춤 포함), qa 통과(AC-7·8). qa가 저장 키 누락·오버플로 테스트 2개 추가.
 - 2026-11-10 AI: fe가 연봉 미입력과 요일 0개가 겹치면 "연봉을 입력하세요"를 먼저 보이게 정함(사용자 확인 필요).
 - 2026-11-10 놓침: fe가 이름으로 프로세스를 골라 사용자가 실행 중인 앱에도 SIGTERM을 보냄(앱은 살아 있음). 자신이 띄운 앱도 끄지 못하고 남김.
+
+## README
+- 2026-11-10 요청: README와 스크린샷 추가, 예시 연봉 2천만 원. fe가 ImageRenderer로 실제 View를 그려 docs/에 PNG 생성(RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests).
