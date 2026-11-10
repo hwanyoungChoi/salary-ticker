@@ -3,12 +3,24 @@ import SwiftUI
 @main
 struct SalaryTickerApp: App {
   @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
+  @State private var model: TickerModel
+
+  init() {
+    let model = TickerModel(
+      store: SalaryStore(defaults: .standard), calendar: .autoupdatingCurrent)
+    model.startTicking()
+    _model = State(initialValue: model)
+  }
 
   var body: some Scene {
-    MenuBarExtra("0원") {
-      Button("종료") { NSApplication.shared.terminate(nil) }
-        .keyboardShortcut("q")
+    MenuBarExtra {
+      PanelView(model: model)
+    } label: {
+      // 숫자만 표시한다(단위 없음). 폭 흔들림을 줄이려 고정폭 숫자를 요청한다.
+      Text(MoneyFormat.amount(model.earnedToday))
+        .monospacedDigit()
     }
+    .menuBarExtraStyle(.window)
   }
 }
 
