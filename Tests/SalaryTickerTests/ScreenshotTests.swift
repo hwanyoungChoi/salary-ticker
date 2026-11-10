@@ -5,7 +5,7 @@ import Testing
 
 @testable import SalaryTicker
 
-/// README용 앱 화면 PNG를 docs/에 렌더링한다. 평소 `swift test`에서는 건너뛴다.
+/// README용 패널 PNG를 docs/에 렌더링한다. 평소 `swift test`에서는 건너뛴다.
 /// 다시 만들기: `RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests`
 @Suite(
   "README 스크린샷",
@@ -18,7 +18,7 @@ struct ScreenshotTests {
 
   /// 예시 연봉 2천만 원, 기본 시간표, 2026-11-09(월) 14:00 Asia/Seoul.
   /// 기대값: 20,000,000 × 16,200초 ÷ (52 × 5 × 32,400초) = 38,461.5… → 38,461, 초당 2.37… → 2.4원.
-  @Test func renderPanelAndMenuBarLabel() throws {
+  @Test func renderPanel() throws {
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
     let now = calendar.date(
@@ -37,7 +37,6 @@ struct ScreenshotTests {
     try render(
       PanelView(model: model, isSettingsExpanded: true), calendar: calendar,
       to: "panel-expanded.png")
-    try render(MenuBarLabel(model: model).padding(6), calendar: calendar, to: "menubar.png")
   }
 
   /// `ImageRenderer`는 입력칸·시각 피커 같은 AppKit 컨트롤을 그리지 못해, 화면에 띄우지 않은

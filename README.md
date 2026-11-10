@@ -4,13 +4,15 @@
 
 ## 스크린샷
 
-<img src="docs/menubar.png" width="56" alt="메뉴바 숫자 38,461">
+<img src="docs/menubar.gif" width="96" alt="메뉴바에서 1초마다 올라가는 숫자">
+
+실제 메뉴바를 캡처한 화면입니다(예시 연봉 2천만 원, 평일 17시 50분 무렵). 숫자가 1초마다 약 2.4씩 올라갑니다.
 
 <img src="docs/panel.png" width="260" alt="설정이 접힌 패널">
 
 <img src="docs/panel-expanded.png" width="260" alt="설정을 펼친 패널">
 
-앱 화면을 렌더링한 이미지입니다(예시 연봉 2천만 원, 월요일 14:00). 위에서부터 메뉴바에 표시되는 숫자, 그 숫자를 눌렀을 때 열리는 패널(설정이 접힌 상태), "설정"을 펼친 패널입니다. 실제 메뉴바를 캡처한 화면은 아닙니다.
+메뉴바 숫자를 눌렀을 때 열리는 패널입니다. 위는 설정이 접힌 상태, 아래는 "설정"을 펼친 상태입니다. 실제 화면 코드로 그린 이미지입니다(예시 연봉 2천만 원, 월요일 14:00).
 
 ## 요구 사항
 
@@ -63,4 +65,4 @@ swift build
 git config core.hooksPath .githooks
 ```
 
-README 스크린샷은 `RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests`로 다시 만듭니다(평소 `swift test`에서는 건너뜁니다).
+README 패널 이미지는 `RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests`로 다시 만듭니다(평소 `swift test`에서는 건너뜁니다).
