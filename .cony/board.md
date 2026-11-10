@@ -1,5 +1,5 @@
 # 연봉 기준 오늘 번 돈을 메뉴바에 1초마다 숫자로 표시
-> 상태: 사용자 대기 · 마지막 업데이트: 2026-11-10 11:48
+> 상태: 사용자 대기 · 마지막 업데이트: 2026-11-10 12:20
 
 ## 태스크
 - [x] 1. 최소 엔드투엔드: 연봉 입력 → 메뉴바에 오늘 번 돈이 1초마다 증가 (AC-1~6)
@@ -36,7 +36,7 @@
 없음
 
 ## PR
-[#2](https://github.com/hwanyoungChoi/salary-ticker/pull/2) · CI 통과 · 머지됨(15cebb1)
+[#3](https://github.com/hwanyoungChoi/salary-ticker/pull/3) · CI 통과 · 머지됨(4638207)
 
 <!-- spec: specs/salary-counter.md -->
 <!-- lead: local_ba0e0640-f7db-4379-951a-dff3268dd38b -->

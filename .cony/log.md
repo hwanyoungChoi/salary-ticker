@@ -16,3 +16,7 @@
 
 ## README
 - 2026-11-10 요청: README와 스크린샷 추가, 예시 연봉 2천만 원. fe가 ImageRenderer로 실제 View를 그려 docs/에 PNG 생성(RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests).
+
+## 설정 기본 숨김
+- 2026-11-10 요청: 패널을 잘못 눌러도 연봉이 보이지 않게 설정을 기본으로 가림. 리드가 DisclosureGroup으로 접고 패널을 닫으면 다시 접히는 동작으로 정함.
+- 2026-11-10 AI: qa 별도 호출 없이 fe 테스트(PanelViewTests)·렌더링 이미지·CI로 확인. 실제 메뉴바 패널 닫힘 시 다시 접히는지는 사람 확인.
