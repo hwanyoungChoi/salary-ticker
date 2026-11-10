@@ -34,6 +34,9 @@ struct ScreenshotTests {
 
     try FileManager.default.createDirectory(at: Self.docs, withIntermediateDirectories: true)
     try render(PanelView(model: model), calendar: calendar, to: "panel.png")
+    try render(
+      PanelView(model: model, isSettingsExpanded: true), calendar: calendar,
+      to: "panel-expanded.png")
     try render(MenuBarLabel(model: model).padding(6), calendar: calendar, to: "menubar.png")
   }
 

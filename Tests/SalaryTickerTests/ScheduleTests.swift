@@ -128,12 +128,14 @@ struct ScheduleValidationTests {
       let model = makeModel(defaults, now: monday(12, 30))
       #expect(model.submitAnnualSalary("52,000,000"))
       #expect(model.perSecondText == "초당 6.2원")
+      #expect(model.setupNotice == nil)
 
       var next = model.schedule
       next.weekdays = []
       #expect(model.submitSchedule(next))
       #expect(model.earnedToday == 0)
       #expect(model.perSecondText == "근무 요일을 선택하세요")
+      #expect(model.setupNotice == "근무 요일을 선택하세요")
 
       let reopened = makeModel(defaults, now: monday(12, 30))
       #expect(reopened.schedule.weekdays.isEmpty)
@@ -148,6 +150,7 @@ struct ScheduleValidationTests {
       #expect(model.perSecondText == "연봉을 입력하세요")
       #expect(model.submitSchedule(WorkSchedule(weekdays: [], startMinutes: 570, endMinutes: 1110)))
       #expect(model.perSecondText == "연봉을 입력하세요")
+      #expect(model.setupNotice == "연봉을 입력하세요")
     }
   }
 }

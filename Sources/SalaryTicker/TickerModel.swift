@@ -27,12 +27,19 @@ final class TickerModel {
       annualSalary: annualSalary ?? 0, schedule: schedule, at: now, calendar: calendar)
   }
 
-  /// 패널의 초당 금액 자리(P10, P11). 둘 다 비어 있으면 연봉 미입력을 먼저 알린다.
+  /// 아직 셀 수 없는 이유(P10, P11). 금액이 들어 있지 않아 설정을 접은 패널에도 보인다.
+  /// 둘 다 비어 있으면 연봉 미입력을 먼저 알린다.
+  var setupNotice: String? {
+    if annualSalary == nil { return "연봉을 입력하세요" }
+    if schedule.weekdays.isEmpty { return "근무 요일을 선택하세요" }
+    return nil
+  }
+
+  /// 패널의 초당 금액 자리(P10, P11). 셀 수 없으면 그 이유를 대신 보인다.
   var perSecondText: String {
-    guard let annualSalary else { return "연봉을 입력하세요" }
-    guard !schedule.weekdays.isEmpty else { return "근무 요일을 선택하세요" }
+    if let setupNotice { return setupNotice }
     return MoneyFormat.perSecond(
-      SalaryCalculator.perSecond(annualSalary: annualSalary, schedule: schedule))
+      SalaryCalculator.perSecond(annualSalary: annualSalary ?? 0, schedule: schedule))
   }
 
   /// 시계의 다음 정각 초마다 `now`를 갱신한다. 1초 고정 간격은 조금씩 밀려 가끔 표시 초를
