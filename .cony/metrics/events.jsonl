@@ -1,0 +1,7 @@
+{"ts":"2026-11-10T02:10:36.331Z","type":"hook","hook":"guard-bash","decision":"ask","command":"cd ~/cony-sandbox/salary-ticker && git push -u origin main 2>&1 | tail -3"}
+{"ts":"2026-11-10T02:12:28.849Z","type":"hook","hook":"guard-bash","decision":"deny","command":"cd ~/cony-sandbox/salary-ticker && git commit -q -am $'chore: CI checkout 액션을 v5로 올림\\n\\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>' && git push -q -u origin chore/checkout-v5 2>&1 | tail "}
+{"ts":"2026-11-10T02:24:31.049Z","type":"decision","file":"decisions/003-integer-money.md"}
+{"ts":"2026-11-10T02:24:31.076Z","type":"decision","file":"decisions/002-storage.md"}
+{"ts":"2026-11-10T02:24:31.099Z","type":"decision","file":"decisions/001-calc-location.md"}
+{"ts":"2026-11-10T02:24:31.123Z","type":"task","task":1,"from":"todo","to":"progress","owner":"fe"}
+{"ts":"2026-11-10T02:24:31.123Z","type":"status","status":"진행 중"}
