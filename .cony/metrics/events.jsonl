@@ -16,3 +16,4 @@
 {"ts":"2026-11-10T02:47:17.995Z","type":"ship","pr":2,"result":"merged"}
 {"ts":"2026-11-10T02:47:31.438Z","type":"status","status":"사용자 대기"}
 {"ts":"2026-11-10T02:47:58.692Z","type":"hook","hook":"context-on-stop","decision":"block","context":203094}
+{"ts":"2026-11-10T03:20:31.311Z","type":"ship","pr":3,"result":"merged"}
