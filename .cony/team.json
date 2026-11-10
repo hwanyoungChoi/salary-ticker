@@ -1,0 +1,8 @@
+{
+  "pm": "build",
+  "fe": "build",
+  "be": "off",
+  "qa": "build",
+  "decisions": "team",
+  "merge": "auto"
+}
