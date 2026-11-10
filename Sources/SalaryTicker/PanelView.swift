@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// 메뉴바 숫자를 누르면 열리는 패널(P7): 연봉 입력, 초당 금액, 종료.
+/// 메뉴바 숫자를 누르면 열리는 패널(P7): 연봉 입력, 초당 금액, 근무 시간표, 종료.
 struct PanelView: View {
   let model: TickerModel
 
@@ -22,8 +22,10 @@ struct PanelView: View {
           .font(.caption)
           .foregroundStyle(.red)
       }
-      Text(perSecondText)
+      Text(model.perSecondText)
         .monospacedDigit()
+      Divider()
+      ScheduleSection(model: model)
       Divider()
       Button("종료") { NSApplication.shared.terminate(nil) }
         .keyboardShortcut("q")
@@ -35,10 +37,6 @@ struct PanelView: View {
     .onChange(of: isSalaryFocused) { _, isFocused in
       if !isFocused { commitSalary() }
     }
-  }
-
-  private var perSecondText: String {
-    model.annualSalary == nil ? "연봉을 입력하세요" : MoneyFormat.perSecond(model.perSecond)
   }
 
   /// 번들 없는 `swift run` 실행에서도 입력칸이 키보드 포커스를 받도록 앱을 앞으로 올린다.
