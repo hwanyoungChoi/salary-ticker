@@ -13,3 +13,6 @@
 {"ts":"2026-11-10T02:43:58.098Z","type":"task","task":3,"from":"todo","to":"progress","owner":"qa"}
 {"ts":"2026-11-10T02:45:27.012Z","type":"task","task":3,"from":"progress","to":"review","owner":"qa"}
 {"ts":"2026-11-10T02:45:27.415Z","type":"task","task":3,"from":"review","to":"done","owner":null}
+{"ts":"2026-11-10T02:47:17.995Z","type":"ship","pr":2,"result":"merged"}
+{"ts":"2026-11-10T02:47:31.438Z","type":"status","status":"사용자 대기"}
+{"ts":"2026-11-10T02:47:58.692Z","type":"hook","hook":"context-on-stop","decision":"block","context":203094}
