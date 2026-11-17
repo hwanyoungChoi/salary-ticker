@@ -39,7 +39,8 @@ final class TickerModel {
   var perSecondText: String {
     if let setupNotice { return setupNotice }
     return MoneyFormat.perSecond(
-      SalaryCalculator.perSecond(annualSalary: annualSalary ?? 0, schedule: schedule))
+      SalaryCalculator.perSecond(
+        annualSalary: annualSalary ?? 0, schedule: schedule, at: now, calendar: calendar))
   }
 
   /// 시계의 다음 정각 초마다 `now`를 갱신한다. 1초 고정 간격은 조금씩 밀려 가끔 표시 초를

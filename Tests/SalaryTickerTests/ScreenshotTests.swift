@@ -17,7 +17,8 @@ struct ScreenshotTests {
     .appending(path: "docs")
 
   /// 예시 연봉 2천만 원, 기본 시간표, 2026-11-09(월) 14:00 Asia/Seoul.
-  /// 기대값: 20,000,000 × 16,200초 ÷ (52 × 5 × 32,400초) = 38,461.5… → 38,461, 초당 2.37… → 2.4원.
+  /// 기대값: 20,000,000 × 12,600초(점심 뺀 09:30~14:00) ÷ (12 × 21일 × 28,800초) = 34,722.2… → 34,722,
+  /// 초당 2.75… → 2.8원.
   @Test func renderPanel() throws {
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
@@ -29,8 +30,8 @@ struct ScreenshotTests {
     defer { defaults.removePersistentDomain(forName: suiteName) }
     let model = TickerModel(store: SalaryStore(defaults: defaults), calendar: calendar, now: now)
     #expect(model.submitAnnualSalary("20000000"))
-    #expect(model.earnedToday == 38_461)
-    #expect(model.perSecondText == "초당 2.4원")
+    #expect(model.earnedToday == 34_722)
+    #expect(model.perSecondText == "초당 2.8원")
 
     try FileManager.default.createDirectory(at: Self.docs, withIntermediateDirectories: true)
     try render(PanelView(model: model), calendar: calendar, to: "panel.png")

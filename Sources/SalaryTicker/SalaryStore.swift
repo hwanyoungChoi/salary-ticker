@@ -6,6 +6,8 @@ struct SalaryStore {
   static let workWeekdaysKey = "workWeekdays"
   static let workStartMinutesKey = "workStartMinutes"
   static let workEndMinutesKey = "workEndMinutes"
+  static let lunchStartMinutesKey = "lunchStartMinutes"
+  static let lunchEndMinutesKey = "lunchEndMinutes"
 
   let defaults: UserDefaults
 
@@ -19,14 +21,18 @@ struct SalaryStore {
     defaults.set(value, forKey: Self.annualSalaryKey)
   }
 
-  /// 저장된 시간표. 세 키 중 하나라도 없거나, 타입이 다르거나, 규칙(AC-8) 밖이면 기본값(P2).
-  /// 키마다 따로 기본값을 섞지 않는다(저장은 항상 세 키를 함께 한다).
+  /// 저장된 시간표. 키 중 하나라도 없거나, 타입이 다르거나, 규칙(AC-8) 밖이면 기본값(P2).
+  /// 키마다 따로 기본값을 섞지 않는다(저장은 항상 모든 키를 함께 한다).
   var schedule: WorkSchedule {
     guard let weekdays = defaults.array(forKey: Self.workWeekdaysKey) as? [Int],
       let start = defaults.object(forKey: Self.workStartMinutesKey) as? Int,
-      let end = defaults.object(forKey: Self.workEndMinutesKey) as? Int
+      let end = defaults.object(forKey: Self.workEndMinutesKey) as? Int,
+      let lunchStart = defaults.object(forKey: Self.lunchStartMinutesKey) as? Int,
+      let lunchEnd = defaults.object(forKey: Self.lunchEndMinutesKey) as? Int
     else { return .standard }
-    let stored = WorkSchedule(weekdays: Set(weekdays), startMinutes: start, endMinutes: end)
+    let stored = WorkSchedule(
+      weekdays: Set(weekdays), startMinutes: start, endMinutes: end,
+      lunchStartMinutes: lunchStart, lunchEndMinutes: lunchEnd)
     return stored.isValid ? stored : .standard
   }
 
@@ -35,5 +41,7 @@ struct SalaryStore {
     defaults.set(schedule.weekdays.sorted(), forKey: Self.workWeekdaysKey)
     defaults.set(schedule.startMinutes, forKey: Self.workStartMinutesKey)
     defaults.set(schedule.endMinutes, forKey: Self.workEndMinutesKey)
+    defaults.set(schedule.lunchStartMinutes, forKey: Self.lunchStartMinutesKey)
+    defaults.set(schedule.lunchEndMinutes, forKey: Self.lunchEndMinutesKey)
   }
 }
