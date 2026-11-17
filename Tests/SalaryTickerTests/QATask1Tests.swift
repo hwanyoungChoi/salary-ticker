@@ -18,13 +18,13 @@ private func monday(_ hour: Int, _ minute: Int, _ second: Int) -> Date {
 
 @Suite("AC-3 정수 연산 (qa)")
 struct IntegerMoneyTests {
-  /// 45,000,000 × 351 / 8,424,000 = 정확히 1,875.
-  /// 초당 금액을 Double로 먼저 구해 곱하면 1,874.999…로 1원 모자란다(ADR-003).
+  /// 29,836,800 × 351 / 7,257,600(2026년 11월 근무 초 × 12) = 정확히 1,443.
+  /// 초당 금액을 Double로 먼저 구해 곱하면 1,442.999…로 1원 모자란다(ADR-003).
   @Test func exactBoundaryIsNotOneWonShort() {
     #expect(
       SalaryCalculator.earnedToday(
-        annualSalary: 45_000_000, schedule: .standard, at: monday(9, 35, 51), calendar: seoul)
-        == 1_875)
+        annualSalary: 29_836_800, schedule: .standard, at: monday(9, 35, 51), calendar: seoul)
+        == 1_443)
   }
 }
 
@@ -46,7 +46,7 @@ struct MenuBarLabelTests {
     let reopened = TickerModel(
       store: SalaryStore(defaults: defaults), calendar: seoul, now: monday(12, 30, 0))
     let label = MoneyFormat.amount(reopened.earnedToday)
-    #expect(label == "66,666")
+    #expect(label == "64,484")
     #expect(label.allSatisfy { $0.isASCII && ($0.isNumber || $0 == ",") })
   }
 }

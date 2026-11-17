@@ -42,7 +42,7 @@ struct ScheduleStoreTests {
     withDefaults { defaults in
       let model = makeModel(defaults)
       #expect(model.submitAnnualSalary("52,000,000"))
-      #expect(model.earnedToday == 11_111)  // 09:30 출근, 1,800초
+      #expect(model.earnedToday == 12_896)  // 09:30 출근, 1,800초
 
       var next = model.schedule
       next.startMinutes = 630
@@ -55,12 +55,16 @@ struct ScheduleStoreTests {
       #expect(defaults.array(forKey: "workWeekdays") as? [Int] == [2, 3, 4, 5, 6])
       #expect(defaults.integer(forKey: "workStartMinutes") == 630)
       #expect(defaults.integer(forKey: "workEndMinutes") == 1110)
+      #expect(defaults.integer(forKey: "lunchStartMinutes") == 720)
+      #expect(defaults.integer(forKey: "lunchEndMinutes") == 780)
     }
   }
 
   @Test func weekdaysSurviveRelaunch() {
     withDefaults { defaults in
-      let schedule = WorkSchedule(weekdays: [1, 7], startMinutes: 0, endMinutes: 1439)
+      let schedule = WorkSchedule(
+        weekdays: [1, 7], startMinutes: 0, endMinutes: 1439, lunchStartMinutes: 690,
+        lunchEndMinutes: 750)
       #expect(makeModel(defaults).submitSchedule(schedule))
       #expect(makeModel(defaults).schedule == schedule)
     }
@@ -68,24 +72,30 @@ struct ScheduleStoreTests {
 
   /// 손으로 고친 값 등 규칙 밖 저장값은 기본 시간표로 읽는다(키마다 기본값을 섞지 않음).
   @Test func invalidStoredValueReadsAsStandard() {
-    let cases: [(weekdays: Any?, start: Any?, end: Any?)] = [
-      ([2, 3], 600, nil),  // 키 하나 없음
-      ("2,3,4", 570, 1110),  // 요일이 배열이 아님
-      (["월"], 570, 1110),  // 요일이 정수가 아님
-      ([0, 2], 570, 1110),  // 요일 범위 밖
-      ([2, 8], 570, 1110),
-      ([2], "570", 1110),  // 시각이 문자열
-      ([2], 570.5, 1110),  // 시각이 소수
-      ([2], -1, 1110),  // 시각 범위 밖
-      ([2], 570, 1440),
-      ([2], 1110, 1110),  // 퇴근 = 출근
-      ([2], 1110, 570),  // 퇴근 < 출근
+    let cases: [(weekdays: Any?, start: Any?, end: Any?, lunchStart: Any?, lunchEnd: Any?)] = [
+      ([2, 3], 600, nil, 720, 780),  // 키 하나 없음
+      ("2,3,4", 570, 1110, 720, 780),  // 요일이 배열이 아님
+      (["월"], 570, 1110, 720, 780),  // 요일이 정수가 아님
+      ([0, 2], 570, 1110, 720, 780),  // 요일 범위 밖
+      ([2, 8], 570, 1110, 720, 780),
+      ([2], "570", 1110, 720, 780),  // 시각이 문자열
+      ([2], 570.5, 1110, 720, 780),  // 시각이 소수
+      ([2], -1, 1110, 720, 780),  // 시각 범위 밖
+      ([2], 570, 1440, 720, 780),
+      ([2], 1110, 1110, 720, 780),  // 퇴근 = 출근
+      ([2], 1110, 570, 720, 780),  // 퇴근 < 출근
+      ([2], 570, 1110, 540, 600),  // 점심이 출근 전에 시작
+      ([2], 570, 1110, 1080, 1140),  // 점심이 퇴근 뒤에 끝남
+      ([2], 570, 1110, 780, 720),  // 점심 끝 < 점심 시작
+      ([2], 570, 1110, 570, 1110),  // 점심이 근무 시간 전체
     ]
     for (index, stored) in cases.enumerated() {
       withDefaults { defaults in
         defaults.set(stored.weekdays, forKey: "workWeekdays")
         defaults.set(stored.start, forKey: "workStartMinutes")
         defaults.set(stored.end, forKey: "workEndMinutes")
+        defaults.set(stored.lunchStart, forKey: "lunchStartMinutes")
+        defaults.set(stored.lunchEnd, forKey: "lunchEndMinutes")
         #expect(SalaryStore(defaults: defaults).schedule == .standard, "\(index)번 경우")
       }
     }
@@ -117,8 +127,41 @@ struct ScheduleValidationTests {
       var next = model.schedule
       next.startMinutes = start
       next.endMinutes = end
+      next.lunchStartMinutes = start
+      next.lunchEndMinutes = start
       #expect(model.submitSchedule(next))
       #expect(SalaryStore(defaults: defaults).schedule == next)
+    }
+  }
+
+  /// 점심시간은 출근~퇴근 안에서만, 근무 시간 전체를 덮지 않게. 무효면 저장하지 않는다.
+  @Test(
+    "무효한 점심시간은 저장하지 않는다",
+    arguments: [(540, 600), (1080, 1140), (780, 720), (570, 1110)])
+  func invalidLunchKeepsPreviousSchedule(lunchStart: Int, lunchEnd: Int) {
+    withDefaults { defaults in
+      let model = makeModel(defaults)
+      var next = model.schedule
+      next.lunchStartMinutes = lunchStart
+      next.lunchEndMinutes = lunchEnd
+      #expect(!model.submitSchedule(next))
+      #expect(model.schedule == .standard)
+    }
+  }
+
+  /// 점심 시작과 끝을 같게 하면 점심 없이 9시간을 센다. 12:30에도 멈추지 않는다.
+  @Test func equalLunchTimesMeanNoLunch() {
+    withDefaults { defaults in
+      let model = makeModel(defaults, now: monday(12, 30))
+      #expect(model.submitAnnualSalary("52,000,000"))
+      #expect(model.earnedToday == 64_484)  // 점심 12:00부터 멈춤
+
+      var next = model.schedule
+      next.lunchStartMinutes = 720
+      next.lunchEndMinutes = 720
+      #expect(model.submitSchedule(next))
+      // 10,800초 × 52,000,000 ÷ (12 × 21일 × 32,400초)
+      #expect(model.earnedToday == 68_783)
     }
   }
 
@@ -127,7 +170,7 @@ struct ScheduleValidationTests {
     withDefaults { defaults in
       let model = makeModel(defaults, now: monday(12, 30))
       #expect(model.submitAnnualSalary("52,000,000"))
-      #expect(model.perSecondText == "초당 6.2원")
+      #expect(model.perSecondText == "초당 7.2원")
       #expect(model.setupNotice == nil)
 
       var next = model.schedule
@@ -148,7 +191,9 @@ struct ScheduleValidationTests {
     withDefaults { defaults in
       let model = makeModel(defaults)
       #expect(model.perSecondText == "연봉을 입력하세요")
-      #expect(model.submitSchedule(WorkSchedule(weekdays: [], startMinutes: 570, endMinutes: 1110)))
+      var noWorkdays = WorkSchedule.standard
+      noWorkdays.weekdays = []
+      #expect(model.submitSchedule(noWorkdays))
       #expect(model.perSecondText == "연봉을 입력하세요")
       #expect(model.setupNotice == "연봉을 입력하세요")
     }

@@ -11,11 +11,14 @@ private let seoul: Calendar = {
 
 private let salary = 52_000_000
 
-/// 2026-11-{day} hh:mm:ss (Asia/Seoul). 9일은 월요일, 14일은 토요일.
-private func date(day: Int, _ hour: Int, _ minute: Int, _ second: Int) -> Date {
+/// 2026-{month}-{day} hh:mm:ss (Asia/Seoul). 11월 9일은 월요일, 14일은 토요일.
+/// 2026년 11월은 근무일(월~금) 21일, 12월은 23일이다.
+private func date(
+  month: Int = 11, day: Int, _ hour: Int, _ minute: Int, _ second: Int
+) -> Date {
   seoul.date(
     from: DateComponents(
-      year: 2026, month: 11, day: day, hour: hour, minute: minute, second: second)
+      year: 2026, month: month, day: day, hour: hour, minute: minute, second: second)
   )!
 }
 
@@ -24,14 +27,15 @@ private func earned(at date: Date, annualSalary: Int = salary) -> Int {
     annualSalary: annualSalary, schedule: .standard, at: date, calendar: seoul)
 }
 
+/// 연봉 5,200만 원, 2026년 11월: 분모 = 12 × 21일 × 28,800초(점심 뺀 8시간) = 7,257,600.
 @Suite("AC-2 오늘 번 돈")
 struct EarnedTodayTests {
   @Test(
     "월요일 시각별 기대값",
     arguments: [
-      (9, 29, 59, 0), (9, 30, 0, 0), (9, 30, 1, 6), (9, 30, 3, 18), (9, 30, 4, 24),
-      (12, 30, 0, 66_666), (14, 0, 0, 100_000), (18, 29, 59, 199_993), (18, 30, 0, 200_000),
-      (23, 59, 59, 200_000),
+      (9, 29, 59, 0), (9, 30, 0, 0), (9, 30, 1, 7), (9, 30, 3, 21), (9, 30, 4, 28),
+      (12, 0, 0, 64_484), (12, 30, 0, 64_484), (12, 59, 59, 64_484), (13, 0, 1, 64_491),
+      (14, 0, 0, 90_277), (18, 29, 59, 206_342), (18, 30, 0, 206_349), (23, 59, 59, 206_349),
     ])
   func monday(hour: Int, minute: Int, second: Int, expected: Int) {
     #expect(earned(at: date(day: 9, hour, minute, second)) == expected)
@@ -45,10 +49,17 @@ struct EarnedTodayTests {
     #expect(earned(at: date(day: 10, 0, 0, 0)) == 0)
   }
 
-  @Test func perSecondIsAbout6Point17() {
-    let perSecond = SalaryCalculator.perSecond(annualSalary: salary, schedule: .standard)
-    #expect(abs(perSecond - 6.1728) < 0.0001)
-    #expect(MoneyFormat.perSecond(perSecond) == "초당 6.2원")
+  @Test func perSecondIsAbout7Point16() {
+    let perSecond = SalaryCalculator.perSecond(
+      annualSalary: salary, schedule: .standard, at: date(day: 9, 14, 0, 0), calendar: seoul)
+    #expect(abs(perSecond - 7.1649) < 0.0001)
+    #expect(MoneyFormat.perSecond(perSecond) == "초당 7.2원")
+  }
+
+  /// 일급은 그 달 월급 ÷ 그 달 근무일 수. 근무일 23일인 12월은 21일인 11월보다 일급이 작다.
+  @Test func dailyWageFollowsWorkdaysInMonth() {
+    #expect(earned(at: date(day: 9, 18, 30, 0)) == 206_349)  // 52,000,000 ÷ 12 ÷ 21
+    #expect(earned(at: date(month: 12, day: 1, 18, 30, 0)) == 188_405)  // ÷ 12 ÷ 23
   }
 }
 
@@ -62,12 +73,12 @@ struct MonotonicTests {
       #expect(value >= previous, "\(second)초에서 감소")
       previous = value
     }
-    #expect(previous == 200_000)
+    #expect(previous == 206_349)
   }
 
   @Test func fractionalSecondsRoundDown() {
     #expect(earned(at: date(day: 9, 9, 30, 0).addingTimeInterval(0.9)) == 0)
-    #expect(earned(at: date(day: 9, 9, 30, 3).addingTimeInterval(0.9)) == 18)
+    #expect(earned(at: date(day: 9, 9, 30, 3).addingTimeInterval(0.9)) == 21)
   }
 }
 
@@ -100,15 +111,19 @@ struct AnnualSalaryTests {
 
   @Test func maximumSalaryDoesNotOverflow() {
     #expect(
-      earned(at: date(day: 9, 18, 30, 0), annualSalary: AnnualSalary.maximum) == 3_846_153_846)
+      earned(at: date(day: 9, 18, 30, 0), annualSalary: AnnualSalary.maximum) == 3_968_253_968)
   }
 
   @Test func noWorkdaysEarnsZero() {
-    let schedule = WorkSchedule(weekdays: [], startMinutes: 570, endMinutes: 1110)
+    var schedule = WorkSchedule.standard
+    schedule.weekdays = []
+    let now = date(day: 9, 12, 0, 0)
     #expect(
       SalaryCalculator.earnedToday(
-        annualSalary: salary, schedule: schedule, at: date(day: 9, 12, 0, 0), calendar: seoul) == 0)
-    #expect(SalaryCalculator.perSecond(annualSalary: salary, schedule: schedule) == 0)
+        annualSalary: salary, schedule: schedule, at: now, calendar: seoul) == 0)
+    #expect(
+      SalaryCalculator.perSecond(
+        annualSalary: salary, schedule: schedule, at: now, calendar: seoul) == 0)
   }
 }
 
@@ -129,7 +144,7 @@ struct StoreTests {
       store: SalaryStore(defaults: defaults), calendar: seoul, now: date(day: 9, 14, 0, 0))
     #expect(defaults.integer(forKey: "annualSalary") == 52_000_000)
     #expect(reopened.annualSalary == 52_000_000)
-    #expect(reopened.earnedToday == 100_000)
+    #expect(reopened.earnedToday == 90_277)
   }
 
   @Test func invalidInputKeepsPreviousSalary() {

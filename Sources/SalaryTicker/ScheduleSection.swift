@@ -5,7 +5,7 @@ private let weekdayItems: [(weekday: Int, label: String)] = [
   (2, "월"), (3, "화"), (4, "수"), (5, "목"), (6, "금"), (7, "토"), (1, "일"),
 ]
 
-/// 패널의 근무 시간표 설정(태스크 2): 요일 토글 7개, 출근·퇴근 시각.
+/// 패널의 근무 시간표 설정: 요일 토글 7개, 출근·퇴근 시각, 점심 시작·끝 시각.
 /// 요일은 누르는 즉시 저장한다(모두 꺼도 저장, P11). 시각은 고르는 동안 로컬 값으로 두고
 /// 유효할 때만 저장한다. 무효면 이유를 보이고 저장된 이전 시간표로 계속 센다(AC-8).
 struct ScheduleSection: View {
@@ -14,12 +14,16 @@ struct ScheduleSection: View {
   @Environment(\.calendar) private var calendar
   @State private var startMinutes: Int
   @State private var endMinutes: Int
-  @State private var hasOrderError = false
+  @State private var lunchStartMinutes: Int
+  @State private var lunchEndMinutes: Int
+  @State private var hoursError: String?
 
   init(model: TickerModel) {
     self.model = model
     _startMinutes = State(initialValue: model.schedule.startMinutes)
     _endMinutes = State(initialValue: model.schedule.endMinutes)
+    _lunchStartMinutes = State(initialValue: model.schedule.lunchStartMinutes)
+    _lunchEndMinutes = State(initialValue: model.schedule.lunchEndMinutes)
   }
 
   var body: some View {
@@ -36,14 +40,21 @@ struct ScheduleSection: View {
         "출근", selection: clockBinding($startMinutes), displayedComponents: .hourAndMinute)
       DatePicker(
         "퇴근", selection: clockBinding($endMinutes), displayedComponents: .hourAndMinute)
-      if hasOrderError {
-        Text("퇴근 시각은 출근 시각보다 늦어야 합니다")
+      DatePicker(
+        "점심 시작", selection: clockBinding($lunchStartMinutes),
+        displayedComponents: .hourAndMinute)
+      DatePicker(
+        "점심 끝", selection: clockBinding($lunchEndMinutes), displayedComponents: .hourAndMinute)
+      if let hoursError {
+        Text(hoursError)
           .font(.caption)
           .foregroundStyle(.red)
       }
     }
     .onChange(of: startMinutes, commitHours)
     .onChange(of: endMinutes, commitHours)
+    .onChange(of: lunchStartMinutes, commitHours)
+    .onChange(of: lunchEndMinutes, commitHours)
     .onDisappear(perform: showStoredHours)
   }
 
@@ -79,13 +90,23 @@ struct ScheduleSection: View {
     var next = model.schedule
     next.startMinutes = startMinutes
     next.endMinutes = endMinutes
-    hasOrderError = !model.submitSchedule(next)
+    next.lunchStartMinutes = lunchStartMinutes
+    next.lunchEndMinutes = lunchEndMinutes
+    if model.submitSchedule(next) {
+      hoursError = nil
+    } else if next.startMinutes >= next.endMinutes {
+      hoursError = "퇴근 시각은 출근 시각보다 늦어야 합니다"
+    } else {
+      hoursError = "점심시간은 출근과 퇴근 사이, 근무 시간보다 짧게 정하세요"
+    }
   }
 
   /// 패널을 닫으면 무효로 남은 시각을 버리고 다음에 열 때 저장값을 보여준다.
   private func showStoredHours() {
     startMinutes = model.schedule.startMinutes
     endMinutes = model.schedule.endMinutes
-    hasOrderError = false
+    lunchStartMinutes = model.schedule.lunchStartMinutes
+    lunchEndMinutes = model.schedule.lunchEndMinutes
+    hoursError = nil
   }
 }
