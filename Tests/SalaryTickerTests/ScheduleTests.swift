@@ -42,7 +42,7 @@ struct ScheduleStoreTests {
     withDefaults { defaults in
       let model = makeModel(defaults)
       #expect(model.submitAnnualSalary("52,000,000"))
-      #expect(model.earnedToday == 12_896)  // 09:30 출근, 1,800초
+      #expect(model.earnedToday == 10_862)  // 세후 43,796,920원, 09:30 출근, 1,800초
 
       var next = model.schedule
       next.startMinutes = 630
@@ -154,14 +154,14 @@ struct ScheduleValidationTests {
     withDefaults { defaults in
       let model = makeModel(defaults, now: monday(12, 30))
       #expect(model.submitAnnualSalary("52,000,000"))
-      #expect(model.earnedToday == 64_484)  // 점심 12:00부터 멈춤
+      #expect(model.earnedToday == 54_311)  // 점심 12:00부터 멈춤
 
       var next = model.schedule
       next.lunchStartMinutes = 720
       next.lunchEndMinutes = 720
       #expect(model.submitSchedule(next))
-      // 10,800초 × 52,000,000 ÷ (12 × 21일 × 32,400초)
-      #expect(model.earnedToday == 68_783)
+      // 10,800초 × 세후 43,796,920 ÷ (12 × 21일 × 32,400초)
+      #expect(model.earnedToday == 57_932)
     }
   }
 
@@ -170,7 +170,7 @@ struct ScheduleValidationTests {
     withDefaults { defaults in
       let model = makeModel(defaults, now: monday(12, 30))
       #expect(model.submitAnnualSalary("52,000,000"))
-      #expect(model.perSecondText == "초당 7.2원")
+      #expect(model.perSecondText == "세후 초당 6.0원")
       #expect(model.setupNotice == nil)
 
       var next = model.schedule

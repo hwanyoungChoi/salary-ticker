@@ -22,9 +22,9 @@ private func date(
   )!
 }
 
-private func earned(at date: Date, annualSalary: Int = salary) -> Int {
+private func earned(at date: Date, annualPay: Int = salary) -> Int {
   SalaryCalculator.earnedToday(
-    annualSalary: annualSalary, schedule: .standard, at: date, calendar: seoul)
+    annualPay: annualPay, schedule: .standard, at: date, calendar: seoul)
 }
 
 /// 연봉 5,200만 원, 2026년 11월: 분모 = 12 × 21일 × 28,800초(점심 뺀 8시간) = 7,257,600.
@@ -51,9 +51,9 @@ struct EarnedTodayTests {
 
   @Test func perSecondIsAbout7Point16() {
     let perSecond = SalaryCalculator.perSecond(
-      annualSalary: salary, schedule: .standard, at: date(day: 9, 14, 0, 0), calendar: seoul)
+      annualPay: salary, schedule: .standard, at: date(day: 9, 14, 0, 0), calendar: seoul)
     #expect(abs(perSecond - 7.1649) < 0.0001)
-    #expect(MoneyFormat.perSecond(perSecond) == "초당 7.2원")
+    #expect(MoneyFormat.perSecond(perSecond) == "세후 초당 7.2원")
   }
 
   /// 일급은 그 달 월급 ÷ 그 달 근무일 수. 근무일 23일인 12월은 21일인 11월보다 일급이 작다.
@@ -105,13 +105,13 @@ struct AnnualSalaryTests {
   }
 
   @Test func outOfRangeSalaryEarnsZeroWithoutTrap() {
-    #expect(earned(at: date(day: 9, 18, 30, 0), annualSalary: Int.max) == 0)
-    #expect(earned(at: date(day: 9, 18, 30, 0), annualSalary: -1) == 0)
+    #expect(earned(at: date(day: 9, 18, 30, 0), annualPay: Int.max) == 0)
+    #expect(earned(at: date(day: 9, 18, 30, 0), annualPay: -1) == 0)
   }
 
   @Test func maximumSalaryDoesNotOverflow() {
     #expect(
-      earned(at: date(day: 9, 18, 30, 0), annualSalary: AnnualSalary.maximum) == 3_968_253_968)
+      earned(at: date(day: 9, 18, 30, 0), annualPay: AnnualSalary.maximum) == 3_968_253_968)
   }
 
   @Test func noWorkdaysEarnsZero() {
@@ -120,10 +120,10 @@ struct AnnualSalaryTests {
     let now = date(day: 9, 12, 0, 0)
     #expect(
       SalaryCalculator.earnedToday(
-        annualSalary: salary, schedule: schedule, at: now, calendar: seoul) == 0)
+        annualPay: salary, schedule: schedule, at: now, calendar: seoul) == 0)
     #expect(
       SalaryCalculator.perSecond(
-        annualSalary: salary, schedule: schedule, at: now, calendar: seoul) == 0)
+        annualPay: salary, schedule: schedule, at: now, calendar: seoul) == 0)
   }
 }
 
@@ -144,7 +144,8 @@ struct StoreTests {
       store: SalaryStore(defaults: defaults), calendar: seoul, now: date(day: 9, 14, 0, 0))
     #expect(defaults.integer(forKey: "annualSalary") == 52_000_000)
     #expect(reopened.annualSalary == 52_000_000)
-    #expect(reopened.earnedToday == 90_277)
+    // 세후 1년 43,796,920원(연봉 5,200만, 비과세 0) × 12,600초 ÷ 7,257,600
+    #expect(reopened.earnedToday == 76_036)
   }
 
   @Test func invalidInputKeepsPreviousSalary() {

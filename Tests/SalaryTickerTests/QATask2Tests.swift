@@ -47,7 +47,7 @@ struct ScheduleMoneyQATests {
       from: DateComponents(year: 2026, month: 11, day: 14, hour: 23, minute: 59, second: 59))!
     #expect(
       SalaryCalculator.earnedToday(
-        annualSalary: AnnualSalary.maximum, schedule: schedule, at: endOfDay, calendar: seoul)
+        annualPay: AnnualSalary.maximum, schedule: schedule, at: endOfDay, calendar: seoul)
         == 2_777_777_777)
   }
 }
