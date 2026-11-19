@@ -14,3 +14,24 @@ jobs:
       - run: swift format lint --strict --recursive Package.swift Sources Tests
       - run: swift test
       - run: swift build -c release
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet format whitespace SalaryTicker.slnx --verify-no-changes
+      - run: dotnet test SalaryTicker.slnx
+      - run: >-
+          dotnet publish SalaryTicker/SalaryTicker.csproj -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SalaryTicker-windows
+          path: windows/publish/SalaryTicker.exe
