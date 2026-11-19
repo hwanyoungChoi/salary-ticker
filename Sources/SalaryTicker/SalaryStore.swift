@@ -3,6 +3,7 @@ import Foundation
 /// 기기 내 저장(ADR 002). 테스트는 `UserDefaults(suiteName:)`를 주입한다.
 struct SalaryStore {
   static let annualSalaryKey = "annualSalary"
+  static let annualTaxFreeKey = "annualTaxFree"
   static let workWeekdaysKey = "workWeekdays"
   static let workStartMinutesKey = "workStartMinutes"
   static let workEndMinutesKey = "workEndMinutes"
@@ -19,6 +20,16 @@ struct SalaryStore {
 
   func saveAnnualSalary(_ value: Int) {
     defaults.set(value, forKey: Self.annualSalaryKey)
+  }
+
+  /// 저장된 연간 비과세액. 없거나 범위(0~1조) 밖이면 0.
+  var annualTaxFree: Int {
+    let value = defaults.integer(forKey: Self.annualTaxFreeKey)
+    return (0...AnnualSalary.maximum).contains(value) ? value : 0
+  }
+
+  func saveAnnualTaxFree(_ value: Int) {
+    defaults.set(value, forKey: Self.annualTaxFreeKey)
   }
 
   /// 저장된 시간표. 키 중 하나라도 없거나, 타입이 다르거나, 규칙(AC-8) 밖이면 기본값(P2).

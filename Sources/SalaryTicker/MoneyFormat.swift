@@ -9,8 +9,8 @@ enum MoneyFormat {
     value.formatted(.number.locale(locale))
   }
 
-  /// 패널의 초당 금액. 예: "초당 6.2원".
+  /// 패널의 세후 초당 금액. 예: "세후 초당 6.2원".
   static func perSecond(_ value: Double) -> String {
-    "초당 \(value.formatted(.number.precision(.fractionLength(1)).locale(locale)))원"
+    "세후 초당 \(value.formatted(.number.precision(.fractionLength(1)).locale(locale)))원"
   }
 }

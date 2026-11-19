@@ -23,7 +23,7 @@ struct IntegerMoneyTests {
   @Test func exactBoundaryIsNotOneWonShort() {
     #expect(
       SalaryCalculator.earnedToday(
-        annualSalary: 29_836_800, schedule: .standard, at: monday(9, 35, 51), calendar: seoul)
+        annualPay: 29_836_800, schedule: .standard, at: monday(9, 35, 51), calendar: seoul)
         == 1_443)
   }
 }
@@ -46,7 +46,7 @@ struct MenuBarLabelTests {
     let reopened = TickerModel(
       store: SalaryStore(defaults: defaults), calendar: seoul, now: monday(12, 30, 0))
     let label = MoneyFormat.amount(reopened.earnedToday)
-    #expect(label == "64,484")
+    #expect(label == "54,311")  // 세후 43,796,920 × 9,000초 ÷ 7,257,600
     #expect(label.allSatisfy { $0.isASCII && ($0.isNumber || $0 == ",") })
   }
 }

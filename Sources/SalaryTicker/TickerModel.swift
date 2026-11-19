@@ -7,6 +7,7 @@ import Observation
 @Observable
 final class TickerModel {
   private(set) var annualSalary: Int?
+  private(set) var annualTaxFree: Int
   private(set) var schedule: WorkSchedule
   private(set) var now: Date
 
@@ -19,12 +20,23 @@ final class TickerModel {
     self.calendar = calendar
     self.now = now
     annualSalary = store.annualSalary
+    annualTaxFree = store.annualTaxFree
     schedule = store.schedule
+  }
+
+  /// 1년 실수령액(세후). 오늘 번 돈과 초당 금액은 이 값으로 센다. 연봉 미입력이면 nil.
+  var annualTakeHome: Int? {
+    annualSalary.map { TakeHomePay.annualTakeHome(annualSalary: $0, annualTaxFree: annualTaxFree) }
   }
 
   var earnedToday: Int {
     SalaryCalculator.earnedToday(
-      annualSalary: annualSalary ?? 0, schedule: schedule, at: now, calendar: calendar)
+      annualPay: annualTakeHome ?? 0, schedule: schedule, at: now, calendar: calendar)
+  }
+
+  /// 패널의 세후 월급. 연봉 미입력이면 nil.
+  var monthlyTakeHomeText: String? {
+    annualTakeHome.map { "세후 월 \(MoneyFormat.amount($0 / 12))원" }
   }
 
   /// 아직 셀 수 없는 이유(P10, P11). 금액이 들어 있지 않아 설정을 접은 패널에도 보인다.
@@ -40,7 +52,7 @@ final class TickerModel {
     if let setupNotice { return setupNotice }
     return MoneyFormat.perSecond(
       SalaryCalculator.perSecond(
-        annualSalary: annualSalary ?? 0, schedule: schedule, at: now, calendar: calendar))
+        annualPay: annualTakeHome ?? 0, schedule: schedule, at: now, calendar: calendar))
   }
 
   /// 시계의 다음 정각 초마다 `now`를 갱신한다. 1초 고정 간격은 조금씩 밀려 가끔 표시 초를
@@ -62,6 +74,15 @@ final class TickerModel {
     guard let value = AnnualSalary.parse(text) else { return false }
     store.saveAnnualSalary(value)
     annualSalary = value
+    return true
+  }
+
+  /// 0 이상 1조 이하만 저장하고 true를 돌려준다. 비우면 0. 무효면 이전 값을 그대로 둔다.
+  func submitAnnualTaxFree(_ text: String) -> Bool {
+    let trimmed = text.trimmingCharacters(in: .whitespaces)
+    guard let value = trimmed.isEmpty ? 0 : AnnualSalary.parseAmount(trimmed) else { return false }
+    store.saveAnnualTaxFree(value)
+    annualTaxFree = value
     return true
   }
 
