@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SalaryTicker.Core/SalaryTicker.Core.csproj" />
+  <Project Path="SalaryTicker.Core.Tests/SalaryTicker.Core.Tests.csproj" />
+  <Project Path="SalaryTicker/SalaryTicker.csproj" />
+</Solution>

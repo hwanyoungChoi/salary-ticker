@@ -22,8 +22,9 @@
 ## 제약
 
 - 연봉 등 사용자가 입력한 값은 이 기기에만 저장하고 네트워크로 보내지 않는다.
-- 외부 Swift 패키지 없이 Apple 기본 프레임워크(SwiftUI, Foundation 등)만 쓴다.
-- macOS 14(Sonoma) 이상만 지원한다.
+- macOS 앱(저장소 루트)은 외부 Swift 패키지 없이 Apple 기본 프레임워크(SwiftUI, Foundation 등)만 쓰고, macOS 14(Sonoma) 이상을 지원한다.
+- Windows 앱(`windows/`)은 .NET 기본 라이브러리(WinForms, System.Text.Json)만 쓴다. 외부 NuGet은 테스트(xUnit)에만 쓴다.
+- 계산(세후, 간이세액표, 근무 시간표)은 두 앱이 같은 값을 내야 한다. 한쪽을 바꾸면 다른 쪽과 테스트 기대값도 함께 바꾼다.
 
 ## 검증
 
@@ -33,4 +34,11 @@
 swift format lint --strict --recursive Package.swift Sources Tests
 swift test
 swift build
+```
+
+Windows 앱(`windows/`)은 CI의 `windows` 잡(windows-latest)에서 아래를 돌린다. 로컬에 .NET SDK가 있으면 같은 명령으로 확인한다.
+
+```bash
+dotnet format whitespace windows/SalaryTicker.slnx --verify-no-changes
+dotnet test windows/SalaryTicker.slnx
 ```
