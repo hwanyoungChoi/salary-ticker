@@ -3,7 +3,7 @@ using SalaryTicker.Core;
 namespace SalaryTicker;
 
 /// <summary>
-/// 앱 전체. 알림 영역 아이콘(설정·종료 메뉴)과 오늘 번 돈을 보이는 숫자 창을 띄우고,
+/// 앱 전체. 알림 영역 아이콘(설정·시작 시 실행·종료 메뉴)과 오늘 번 돈을 보이는 숫자 창을 띄우고,
 /// 시계의 다음 정각 초마다 숫자를 다시 계산한다(누적하지 않음).
 /// </summary>
 internal sealed class TrayContext : ApplicationContext
@@ -20,9 +20,15 @@ internal sealed class TrayContext : ApplicationContext
         this.store = store;
         settings = store.Load();
 
+        var startupItem = new ToolStripMenuItem("Windows 시작 시 실행") { CheckOnClick = true };
+        startupItem.Click += (_, _) => StartupRegistration.SetEnabled(startupItem.Checked);
         var menu = new ContextMenuStrip();
         menu.Items.Add("설정…", null, (_, _) => ShowSettings());
+        menu.Items.Add(startupItem);
+        menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("종료", null, (_, _) => ExitThread());
+        // 메뉴를 열 때마다 실제 등록 상태를 다시 읽는다(다른 곳에서 꺼도 맞게 보이도록).
+        menu.Opening += (_, _) => startupItem.Checked = StartupRegistration.IsEnabled;
 
         trayIcon = new NotifyIcon
         {
