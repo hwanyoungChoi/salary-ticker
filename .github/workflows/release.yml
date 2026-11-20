@@ -1,0 +1,30 @@
+name: Release
+
+# v로 시작하는 태그(예: v1.0.0)를 올리면 Windows exe를 만들어 GitHub 릴리스에 붙인다.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test SalaryTicker.slnx
+      - run: >-
+          dotnet publish SalaryTicker/SalaryTicker.csproj -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true -p:Version="${GITHUB_REF_NAME#v}" -o publish
+      - run: gh release create "$GITHUB_REF_NAME" publish/SalaryTicker.exe --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

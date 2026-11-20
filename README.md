@@ -18,7 +18,9 @@
 
 `windows/` 폴더에 같은 계산을 하는 Windows 앱이 있습니다. Windows 알림 영역에는 글자를 띄울 수 없어서, 작업표시줄 위에 항상 위에 떠 있는 작은 창에 오늘 번 돈을 숫자로 보입니다.
 
-- 받기: GitHub Actions의 CI 실행 결과에서 `SalaryTicker-windows` 아티팩트를 내려받아 압축을 풀고 `SalaryTicker.exe`를 실행합니다. .NET 설치가 필요 없습니다(Windows 10/11 x64).
+- 받기: [SalaryTicker.exe 내려받기](https://github.com/hwanyoungChoi/salary-ticker/releases/latest/download/SalaryTicker.exe)(최신 릴리스). 파일 하나라 설치 없이 바로 실행합니다. .NET 설치도 필요 없습니다(Windows 10/11 x64).
+- 처음 실행할 때 "Windows의 PC 보호" 창이 뜨면 "추가 정보 → 실행"을 누릅니다. 코드 서명을 하지 않은 앱이라 뜨는 경고입니다.
+- 알림 영역 아이콘을 오른쪽 클릭해 "Windows 시작 시 실행"을 켜 두면 로그인할 때 자동으로 뜹니다. exe를 다른 폴더로 옮겼다면 다시 켜 주세요.
 - 숫자 창은 끌어서 옮길 수 있고 위치를 기억합니다. 포커스를 뺏지 않고 Alt+Tab에도 나오지 않습니다.
 - 알림 영역의 ₩ 아이콘을 누르면 설정 창이 열립니다. 연봉, 연간 비과세, 근무 요일, 출퇴근·점심 시각을 넣고 [저장]을 누릅니다. 아이콘을 오른쪽 클릭하면 종료할 수 있습니다.
 - 설정은 이 PC의 `%APPDATA%\SalaryTicker\settings.json`에만 저장합니다.
@@ -87,6 +89,13 @@ swift build
 
 ```bash
 git config core.hooksPath .githooks
+```
+
+Windows 릴리스는 `v`로 시작하는 태그를 올리면 만들어집니다(`.github/workflows/release.yml`). 테스트를 통과하면 `SalaryTicker.exe`를 붙인 GitHub 릴리스가 생깁니다.
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 README 패널 이미지는 `RENDER_SCREENSHOTS=1 swift test --filter ScreenshotTests`로 다시 만듭니다(평소 `swift test`에서는 건너뜁니다).
